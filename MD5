@@ -1,0 +1,17 @@
+e003e3870ebf3f80d019413d36ce232c *DESCRIPTION
+b3bd3f4a67d600add7385acde8ad74cd *LICENSE
+a6efa9ae2118898fc084f800a410bc67 *NAMESPACE
+a27a2e5d25ff84a33e707316c48dd185 *R/batting.R
+ebb1376a1298353b4edabd0a14f5d3d3 *R/dismissal.r
+602f31d7fbbd3dad6ee6dccb6741422e *README.md
+27acfa8fdf9c8d066aad6e934ef14b41 *man/dispBatsmanDismissals.Rd
+486e85a0e4a0c2eed242ddd882fb80af *man/dispBatsmanDismissalsByBowlerType.Rd
+3eb3be715790ff77931319d3ad47c3c8 *man/dispBattingAveByContinent.Rd
+41f5cbd972965e1fd420d6561bdfb06d *man/dispBattingAveByHostCountry.Rd
+47076f3c4d537c02fb02ee94a3058d83 *man/dispBattingAveByOpposition.Rd
+5d5e080d2d5aa13ad4a24a9a964c15f2 *man/dispBattingAveByPosPlayed.Rd
+6be5777e58c38c144c5086b372f97fe7 *man/dispBattingAveByYears.Rd
+bbf49af6f83ce23b8ab971e4cf3cd570 *man/getBattingSummary.Rd
+d60f6664465059f33f65108c5ad964d3 *man/getDismissalSummary.Rd
+18bf3f64cb03c7871a8e8fa1d949332b *man/splitBattingSummary.Rd
+12c3ab946cf716da95e5a8f2cab6b6f1 *man/splitDismissalSummary.Rd
