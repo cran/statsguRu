@@ -1,4 +1,20 @@
 ###################################################################################################################################
+#' Gets a Players's Overall Batting Summary
+#'
+#' This function scraps overall batting summary info from Statsguru and returns a dataframe
+#' @param PlayerID ESPNCricinfo Player ID.
+#' @param MatchType Type of Match Played (1 for Test; 2 for ODI; 3 for T20I ; 11 for All)
+#' @return Returns dataframe containing overall Batting Summary of a Player
+#' @export
+#' @examples
+#' sachin = getBattingSummary(35320,11)
+
+getOverallBattingSummary = function(PlayerID,MatchType){
+  url = paste("http://stats.espncricinfo.com/ci/engine/player/",PlayerID,".html?class=",MatchType,";template=results;type=batting",sep="");
+  htmltab::htmltab(url,which = 3,rm_nodata_rows = FALSE)
+}
+
+###################################################################################################################################
 #' Gets a Players's Batting Summary
 #'
 #' This function scraps batting summary info from Statsguru and returns a dataframe
@@ -11,7 +27,7 @@
 
 getBattingSummary = function(PlayerID,MatchType){
   url = paste("http://stats.espncricinfo.com/ci/engine/player/",PlayerID,".html?class=",MatchType,";template=results;type=batting",sep="");
-  htmltab(url,which = 4,rm_nodata_rows = FALSE)
+  htmltab::htmltab(url,which = 4,rm_nodata_rows = FALSE)
 }
 
 
@@ -117,7 +133,10 @@ splitBattingSummary = function(data,MatchType){
 dispBattingAveByOpposition = function(data){
 
   data = data$oppCountry
-  barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average vs Opp Country")
+  data$Ave = as.numeric(data$Ave)
+  data = na.omit(data)
+  bp = barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average vs Opp Country")
+  text(bp,0,as.integer(data$Ave),cex=1,pos=3)
   }
 
 
@@ -136,8 +155,14 @@ dispBattingAveByOpposition = function(data){
 
 dispBattingAveByHostCountry = function(data){
   data = data$hostCountry
-  barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average in Host Country")
-}
+  data$Ave = as.numeric(data$Ave)
+  data = na.omit(data)
+  bp = barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average in Host Country")
+  text(bp,0,as.integer(data$Ave),cex=1,pos=3)
+
+  #abline(h=c$Ave,lwd=2, lty="dashed", col="red")
+  #text(0.5, as.integer(c$Ave)+2, "Average", col = "black")
+  }
 ###################################################################################################################################
 
 
@@ -171,8 +196,11 @@ dispBattingAveByHostCountry = function(data){
 
 dispBattingAveByContinent = function(data){
   data = data$hostContinent
-  barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average by Continent")
-}
+  data$Ave = as.numeric(data$Ave)
+  data = na.omit(data)
+  bp = barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average by Continent")
+  text(bp,0,as.integer(data$Ave),cex=1,pos=3)
+  }
 
 
 ###################################################################################################################################
@@ -190,7 +218,15 @@ dispBattingAveByContinent = function(data){
 
 dispBattingAveByYears = function(data){
   data = data$yearWise
-  barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average by Calendar Year")
+  data$Ave = round(as.numeric(data$Ave),1)
+  data$Grouping <- as.integer(gsub('[a-zA-Z]', '', data$Grouping))
+  data = data[-2]
+  data = na.omit(data)
+  plot(data$Grouping,data$Ave, type="b", col="orange", lwd=2, pch=19,ylim = c(min(data$Ave)-10,max(data$Ave)+10) ,xlab="Year",ylab="Batting Average", xaxt='n')
+  axis(1,data$Grouping,data$Grouping)
+  text(data$Grouping,data$Ave,as.integer(data$Ave),cex=1.2, pos=3, col="brown")
+  title("Year Wise Batting Average")
+
 }
 
 
@@ -208,9 +244,47 @@ dispBattingAveByYears = function(data){
 
 dispBattingAveByPosPlayed = function(data){
   data = data$posPlayed
-  barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average by Position Played")
-}
+  data$Ave = as.numeric(data$Ave)
+  data = na.omit(data)
+  bp = barplot(as.numeric(data$Ave),names = as.vector(data$Grouping),las =2,cex.names = 0.9,col = rainbow(length(data$Ave)),main="Batting Average by Position Played")
+  text(bp,0,as.integer(data$Ave),cex=1,pos=3)
+  }
 
 
 ###################################################################################################################################
 
+
+
+#' Displays Scatterplot of a Players's Batting Average and Strike rate by List of Oppostion teams
+#'
+#' This function takes in "Batting Summary" dataframe modified after splitBattingSummary and plots a player's batting average and Strike Rate against every opposition team.
+#' @param data Output of splitBattingSummary.
+#' @return Plots a scatterplot pitting player's batting average and strike-rate against every opposition team.
+#' @export
+#' @examples
+#' sachin = getBattingSummary(35320,2)
+#' sachin1 = splitBattingSummary(sachin,2)
+#' dispBattingAveSRByOpposition(sachin1)
+
+dispBattingAveSRByOpposition = function(data){
+
+  data = data$oppCountry
+  if("SR" %in% colnames(data))
+  {
+  data$Ave = as.numeric(data$Ave)
+  data$SR = as.numeric(data$SR)
+  data = na.omit(data)
+  #with(plot(data$Ave~data$SR,data = data,xlim = c(min(data$SR)-10,max(data$SR)+10),
+  #          ylim = c(min(data$Ave)-10,max(data$Ave)+10),pch = 19,xlab = "Strike-Rate",ylab = "Average",main = "Batting Average vs Strike-Rate"),
+  #     text(data$SR,data$Ave, labels=data$Grouping, cex= 0.8,pos = 4))
+
+  sp = ggplot(data = data, aes(x = data$Ave, y = data$SR)) + theme_bw() + geom_text_repel(aes(label = data$Grouping),
+          box.padding = unit(0.5, "lines")) +geom_point(colour = "black", size = 3) +
+    labs(x = "Batting Average",y= "Strike Rate",title = "Average vs Strike Rate") + theme(plot.title = element_text(hjust = 0.5))
+  sp + geom_hline(yintercept=mean(data$SR),linetype="dashed", color = "blue") + geom_vline(xintercept=mean(data$Ave),linetype="dashed", color = "orange")
+  }
+  else
+  {print("Strike Rate Data Not Availabe for this Player")}
+
+}
+###################################################################################################################################
